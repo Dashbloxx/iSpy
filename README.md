@@ -1,8 +1,7 @@
 # iSpy
 ## About
-iSpy is a small IPv4 scanner that allows you to scan for open ports. Features include pretty much everything you'd expect from an IP address scanner, although here are some features that are planned to be added:
+iSpy is a small IPv4 scanner that allows you to scan for open ports. Features include pretty much everything you'd expect from an IP address scanner, including multithreading support with the ability to scan around a hundred ports at once, although here are some features that are planned to be added:
 * Proxy support & TOR support. Some people may want to scan IP addresses secretly, hence the name iSpy. Therefore, it is planned that iSpy will have proxy & TOR support in the future.
-* Multithreading support.
 ## Building
 You'll need a UNIX-like operating system, a C compiler, and a libc that supports TCP sockets. Most likely, you have the last two of the requirements. Oh and yes, you'll also need BSD make or GNU make to be able to execute the makefile. Once all the requirements are met, go ahead and run the command `make` in the root directory of the `iSpy` directory.
 ## Deploying
@@ -16,3 +15,8 @@ The `-T` parameter sets iSpy's timeout. If it's set to zero, iSpy will use the o
 
 ```
 Here, we just scan for HTTP(S) servers from the range `1.0.0.0` to `127.0.0.0`.
+Now, what if you want to increase the amount of threads that iSpy uses? Just set the `-t` parameter! Here's an example:
+```
+./ispy -T1 -t100 -A1.0.0.0:80 -B127.0.0.0:80
+```
+There we scan just for the port 80 from the IPv4 address range `1.0.0.0` to `127.0.0.0`!

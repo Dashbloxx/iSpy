@@ -2,75 +2,24 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+extern bool validate(char* ip_address, int port, int timeout_seconds);
+
+sem_t thread_semaphore;
+int max_threads = 100;
 
 typedef struct
 {
 	uint8_t a, b, c, d;
 	uint16_t port;
 } address_t;
-
-
-int validate(char *address, uint16_t port, char *response, int _timeout)
-{
-	int sockfd;
-	struct sockaddr_in server;
-	char buffer[2048];
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-	if (sockfd == -1)
-	{
-		return -1;
-	}
-
-	struct timeval timeout;
-	timeout.tv_sec = _timeout;
-	timeout.tv_usec = 0;
-
-	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
-	{
-		return -2;
-	}
-
-	if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0)
-	{
-		return -2;
-	}
-
-	server.sin_family = AF_INET;
-	server.sin_port = htons(port);
-	server.sin_addr.s_addr = inet_addr(address);
-
-	if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
-	{
-		return -3;
-	}
-
-	if (send(sockfd, "\x00\x00\x00\x00\x00\x00\x04\x01\x02\x00", sizeof("\x00\x00\x00\x00\x00\x00\x04\x01\x02\x00") - 1, 0) < 0)
-	{
-		return -4;
-	}
-
-	ssize_t bytes_read = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
-
-	if (bytes_read < 0)
-	{
-		return -5;
-	}
-
-	buffer[bytes_read] = '\0';
-
-	response = &buffer[0];
-
-	close(sockfd);
-
-	return 0;
-}
-
 
 void remove_prefix(char *string)
 {
@@ -82,6 +31,36 @@ void remove_prefix(char *string)
 	}
 }
 
+void* thread_function(void* arg)
+{
+    int* thread_args = (int*)arg;
+    int a = thread_args[0];
+    int b = thread_args[1];
+    int c = thread_args[2];
+    int d = thread_args[3];
+    int port = thread_args[4];
+    int timeout = thread_args[5];
+
+    char buffer[64] = {0};
+    sprintf(buffer, "%u.%u.%u.%u", a, b, c, d);
+    if (validate(buffer, port, timeout))
+	{
+        printf("CHECKING\t%s:%hu\tFOUND AN AVAILABLE CONNECTION!\n", buffer, port);
+        FILE* servers = fopen("servers.txt", "a");
+        if (servers != NULL) {
+            fprintf(servers, "%s:%hu\n", buffer, port);
+            fclose(servers);
+        }
+    }
+	else
+	{
+        printf("CHECKING\t%s:%hu\tFOUND NOTHING\n", buffer, port);
+    }
+
+    sem_post(&thread_semaphore);
+    pthread_exit(NULL);
+}
+
 int main(int argc, const char *argv[])
 {
 	address_t address0;
@@ -91,6 +70,7 @@ int main(int argc, const char *argv[])
 	char saddress0[64];
 	char saddress1[64];
 	char stimeout[64];
+	char sthreads[64];
 
 	FILE *servers = fopen("servers.txt", "a");
 	if(servers == NULL)
@@ -99,7 +79,7 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
-	for(unsigned int i = 0; i < argc; i++)
+	for(int i = 0; i < argc; i++)
 	{
 		if(argv[i][0] == '-' && argv[i][1] == 'A')
 		{
@@ -127,7 +107,15 @@ int main(int argc, const char *argv[])
 			remove_prefix(stimeout);
 			timeout = atoi(stimeout);
 		}
+		else if(argv[i][0] == '-' && argv[i][1] == 't')
+		{
+			strcpy(sthreads, argv[i]);
+			remove_prefix(sthreads);
+			max_threads = atoi(sthreads);
+		}
 	}
+
+	sem_init(&thread_semaphore, 0, max_threads);
 
 	for(unsigned int a = address0.a; a <= address1.a; a++)
 	{
@@ -139,23 +127,24 @@ int main(int argc, const char *argv[])
 				{
 					for(unsigned int port = address0.port; port <= address1.port; port++)
 					{
-						char buffer0[64] = {0};
-						char *buffer1;
-						sprintf(buffer0, "%u.%u.%u.%u", a, b, c, d);
-						if(validate(buffer0, port, buffer1, timeout) == 0)
-						{
-							printf("CHECKING\t%s:%hu\tFOUND AN AVAILABLE CONNECTIIN!\n", buffer0, port);
-							fprintf(servers, "%s:%hu\n", buffer0, port);
-						}
-						else
-						{
-							printf("CHECKING\t%s:%hu\tFOUND NOTHING\n", buffer0, port);
-						}
+						sem_wait(&thread_semaphore);
+						pthread_t thread_id;
+						int thread_args[6] = {a, b, c, d, port, timeout};
+						pthread_create(&thread_id, NULL, thread_function, (void*)thread_args);
 					}
 				}
 			}
 		}
 	}
 
+	for (int i = 0; i < max_threads; i++)
+	{
+        sem_wait(&thread_semaphore);
+    }
+
 	fclose(servers);
+
+	sem_destroy(&thread_semaphore);
+
+	return 0;
 }
