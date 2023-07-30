@@ -17,6 +17,6 @@ The `-T` parameter sets iSpy's timeout. If it's set to zero, iSpy will use the o
 Here, we just scan for HTTP(S) servers from the range `1.0.0.0` to `127.0.0.0`.
 Now, what if you want to increase the amount of threads that iSpy uses? Just set the `-t` parameter! Here's an example:
 ```
-./ispy -T1 -t100 -A1.0.0.0:80 -B127.0.0.0:80
+./ispy -T1 -t100 -A1.0.0.0:80 -B126.255.255.255:80
 ```
-There we scan just for the port 80 from the IPv4 address range `1.0.0.0` to `127.0.0.0`!
+There we scan just for the port 80 from the IPv4 address range `1.0.0.0` to `126.255.255.255`!
