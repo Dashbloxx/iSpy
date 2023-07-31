@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/sem.h>
 #include <pthread.h>
 #include <semaphore.h>
 

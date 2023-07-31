@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g -pthread
+CFLAGS = -Wall -Wextra -std=c99 -g
 
 SOURCES = $(wildcard source/*.c)
 OBJECTS = $(SOURCES:.c=.o)
@@ -9,7 +9,7 @@ OBJECTS = $(SOURCES:.c=.o)
 all: ispy
 
 ispy: $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) -o $@ -lpthread -lrt
 
 source/%.o: source/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
