@@ -10,12 +10,13 @@
 #include <netdb.h>
 #include <sys/select.h>
 
-bool validate(char* ip_address, int port, int timeout_seconds)
+#include "check.h"
+
+int check(char* ip_address, int port, int timeout_seconds)
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        perror("Socket creation failed");
-        return false;
+        return -1;
     }
 
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -28,9 +29,8 @@ bool validate(char* ip_address, int port, int timeout_seconds)
 
     if (inet_pton(AF_INET, ip_address, &server_addr.sin_addr) <= 0)
     {
-        perror("Invalid IP address");
         close(sockfd);
-        return false;
+        return -2;
     }
 
     int connect_result = connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
@@ -54,34 +54,32 @@ bool validate(char* ip_address, int port, int timeout_seconds)
                 getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len);
                 if (so_error == 0) {
                     close(sockfd);
-                    return true;
+                    return 0;
                 }
             }
             else if (select_result == 0)
             {
                 close(sockfd);
-                return false;
+                return -3;
             }
             else
             {
-                perror("Select error");
                 close(sockfd);
-                return false;
+                return -4;
             }
         }
         else
         {
-            perror("Connect error");
             close(sockfd);
-            return false;
+            return -5;
         }
     }
     else
     {
         close(sockfd);
-        return true;
+        return 1;
     }
 
     close(sockfd);
-    return false;
+    return -5;
 }

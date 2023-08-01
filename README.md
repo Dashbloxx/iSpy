@@ -5,18 +5,9 @@ iSpy is a small IPv4 scanner that allows you to scan for open ports. Features in
 ## Building
 You'll need a UNIX-like operating system, a C compiler, and a libc that supports TCP sockets. Most likely, you have the last two of the requirements. Oh and yes, you'll also need BSD make or GNU make to be able to execute the makefile. Once all the requirements are met, go ahead and run the command `make` in the root directory of the `iSpy` directory.
 ## Deploying
-After building just execute the `ispy` command. You'll want to supply some arguments to also get it working:
+Refer to **Usage** to figure out how to use it. More detailed documentation will appear here soon.
+## Usage
+To get started, you can't just run `ispy` without any arguments. You must supply it with the IP address range using the parameters `-0` and `-1`. You must also provide the port that the scanner must scan for, using the `-p` parameter (set it to `80` or `8080` if you are looking for websites, or `25565` for Minecraft servers). You'll DEFINENTLY want to pass the `-t` parameter, since running iSpy with just one thread is extremely slow (the more threads, the faster and more IPv4 addresses will be scanned). You'll also want to set the `-T` parameter, which represents the timeout. We recommend setting it to around `1` or `2`, the more, the slower the scanning will be. Here's a quick example scanning for "hidden" websites:
+```sh
+./ispy -t 100 -T 1 -0 1.0.0.0 -1 126.255.255.255 -p 80
 ```
-./ispy -T1 -A192.168.0.0:25565 -B192.168.255.255:25577
-```
-The `-T` parameter sets iSpy's timeout. If it's set to zero, iSpy will use the operating system's default timeout. It is recommended to set it to 1 or 2 depending on the speed of your internet. Then the `-A` and `-B` arguments define the range of IPv4 addresses and ports that should be scanned. In the command above, we're scanning for Minecraft servers in our local network. This can be changed to scan for anything else though. Let's say we want to scan for HTTP(S) servers. We can change the ports from 25565 - 25577 to 80 - 80:
-```
-./ispy -T1 -A1.0.0.0:80 -B127.0.0.0:80
-
-```
-Here, we just scan for HTTP(S) servers from the range `1.0.0.0` to `127.0.0.0`.
-Now, what if you want to increase the amount of threads that iSpy uses? Just set the `-t` parameter! Here's an example:
-```
-./ispy -T1 -t100 -A1.0.0.0:80 -B126.255.255.255:80
-```
-There we scan just for the port 80 from the IPv4 address range `1.0.0.0` to `126.255.255.255`!
