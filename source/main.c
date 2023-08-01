@@ -16,8 +16,6 @@ char * opt_ip1 = NULL;
 char * log_filename = NULL;
 int port = 80;
 
-FILE * log_file;
-
 int main(int argc, char * argv[])
 {
     if(argc < 2)
@@ -66,16 +64,6 @@ usage_err:
         goto usage_err;
     }
 
-    if(log_filename != NULL)
-    {
-        log_file = fopen(log_filename, "a");
-        if(log_file == NULL)
-        {
-            fprintf(stderr, "\x1b[31;1mfatal error: error opening %s\x1b[0m\n", log_filename);
-            exit(EXIT_FAILURE);
-        }
-    }
-
     ipv4_t * ip0 = NULL;
     ipv4_t * ip1 = NULL;
 
@@ -83,4 +71,5 @@ usage_err:
     ip1 = string_to_ipv4(opt_ip1);
 
     scanner(ip0, ip1, timeout, thread_count, port);
+    exit(EXIT_SUCCESS);
 }

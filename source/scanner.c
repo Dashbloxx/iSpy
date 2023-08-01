@@ -7,18 +7,18 @@
 #include "ipv4.h"
 #include "check.h"
 
-extern FILE * log_file;
+extern char * log_filename;
 
 typedef struct
 {
     char *ip_address;
     int port;
     int timeout;
-} thread_args;
+} threadargs_t;
 
 void *scanner_thread(void *arg)
 {
-    thread_args *args = (thread_args *)arg;
+    threadargs_t *args = (threadargs_t *)arg;
 
     char *ip_address = args->ip_address;
     int port = args->port;
@@ -29,9 +29,18 @@ void *scanner_thread(void *arg)
     if (ret >= 0)
     {
         printf("%s:%d => \x1b[32;1monline\x1b[0m\n", ip_address, port);
-        if(log_file != NULL)
+
+        if(log_filename != NULL)
         {
+            FILE * log_file = fopen(log_filename, "a");
+            if(log_file == NULL)
+            {
+                fprintf(stderr, "\x1b[31;1mfatal error: error opening %s\x1b[0m\n", log_filename);
+                fclose(log_file);
+                exit(EXIT_FAILURE);
+            }
             fprintf(log_file, "%s:%d => online\n", ip_address, port);
+            fclose(log_file);
         }
     }
     else if (ret <= 0)
@@ -65,7 +74,7 @@ void scanner(ipv4_t *ip0, ipv4_t *ip1, int timeout, int thread_count, uint16_t p
                     char *ip_address = ipv4_to_string(ipv4);
 
                     // Create thread arguments
-                    thread_args *args = malloc(sizeof(thread_args));
+                    threadargs_t *args = malloc(sizeof(threadargs_t));
                     args->ip_address = ip_address;
                     args->port = port;
                     args->timeout = timeout;
