@@ -13,9 +13,12 @@ int thread_count = 5;
 int timeout = 1;
 char * opt_ip0 = NULL;
 char * opt_ip1 = NULL;
+char * log_filename = NULL;
 int port = 80;
 
-int main(int argc, char *argv[])
+FILE * log_file;
+
+int main(int argc, char * argv[])
 {
     if(argc < 2)
     {
@@ -23,7 +26,7 @@ int main(int argc, char *argv[])
     }
 
     int opt;
-    while ((opt = getopt(argc, argv, "t:T:0:1:p:")) != -1) {
+    while ((opt = getopt(argc, argv, "t:T:0:1:p:l:")) != -1) {
         switch (opt) {
             case 't':
                 thread_count = atoi(optarg);
@@ -39,6 +42,9 @@ int main(int argc, char *argv[])
                 break;
             case 'p':
                 port = atoi(optarg);
+                break;
+            case 'l':
+                log_filename = optarg;
                 break;
             case '?':
                 goto usage_err;
@@ -58,6 +64,16 @@ usage_err:
     if(opt_ip1 == NULL)
     {
         goto usage_err;
+    }
+
+    if(log_filename != NULL)
+    {
+        log_file = fopen(log_filename, "a");
+        if(log_file == NULL)
+        {
+            fprintf(stderr, "\x1b[31;1mfatal error: error opening %s\x1b[0m\n", log_filename);
+            exit(EXIT_FAILURE);
+        }
     }
 
     ipv4_t * ip0 = NULL;

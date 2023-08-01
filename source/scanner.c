@@ -7,6 +7,8 @@
 #include "ipv4.h"
 #include "check.h"
 
+extern FILE * log_file;
+
 typedef struct
 {
     char *ip_address;
@@ -27,6 +29,10 @@ void *scanner_thread(void *arg)
     if (ret >= 0)
     {
         printf("%s:%d => \x1b[32;1monline\x1b[0m\n", ip_address, port);
+        if(log_file != NULL)
+        {
+            fprintf(log_file, "%s:%d => online\n", ip_address, port);
+        }
     }
     else if (ret <= 0)
     {
