@@ -13,3 +13,5 @@ To get started, you can't just run `ispy` without any arguments. You must supply
 ```sh
 ./ispy -t 100 -T 1 -0 1.0.0.0 -1 126.255.255.255 -p 80 -l found_servers.txt
 ```
+## License
+I'm still thinking on what license I should place in this project, but for now while I decide it's licensed as All Rights Reserved.
