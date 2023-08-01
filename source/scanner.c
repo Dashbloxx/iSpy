@@ -39,7 +39,7 @@ void *scanner_thread(void *arg)
                 fclose(log_file);
                 exit(EXIT_FAILURE);
             }
-            fprintf(log_file, "%s:%d => online\n", ip_address, port);
+            fprintf(log_file, "%s:%d\n", ip_address, port);
             fclose(log_file);
         }
     }
