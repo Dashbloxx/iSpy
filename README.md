@@ -1,4 +1,6 @@
 # iSpy
+## Screenshot
+![Screenshot of iSpy running!](.assets/screenshot0.png)
 ## About
 iSpy is a small IPv4 scanner that allows you to scan for open ports. Features include pretty much everything you'd expect from an IP address scanner, including multithreading support with the ability to scan around a hundred ports at once, although here are some features that are planned to be added:
 * Proxy support & TOR support. Some people may want to scan IP addresses secretly, hence the name iSpy. Therefore, it is planned that iSpy will have proxy & TOR support in the future.
