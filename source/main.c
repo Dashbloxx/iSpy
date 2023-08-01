@@ -17,6 +17,11 @@ int port = 80;
 
 int main(int argc, char *argv[])
 {
+    if(argc < 2)
+    {
+        goto usage_err;
+    }
+
     int opt;
     while ((opt = getopt(argc, argv, "t:T:0:1:p:")) != -1) {
         switch (opt) {
@@ -36,10 +41,23 @@ int main(int argc, char *argv[])
                 port = atoi(optarg);
                 break;
             case '?':
+                goto usage_err;
+                break;
             default:
+usage_err:
                 fprintf(stderr, "Usage: %s -t <thread_count> -T <timeout> -0 <ip0> -1 <ip1> -p <port>\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
+    }
+
+    if(opt_ip0 == NULL)
+    {
+        goto usage_err;
+    }
+
+    if(opt_ip1 == NULL)
+    {
+        goto usage_err;
     }
 
     ipv4_t * ip0 = NULL;
