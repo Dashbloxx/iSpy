@@ -7,7 +7,7 @@ iSpy is a small IPv4 scanner that allows you to scan for open ports. Features in
 ## Building
 You'll need a UNIX-like operating system, a C compiler, and a libc that supports TCP sockets. Most likely, you have the last two of the requirements. Oh and yes, you'll also need BSD make or GNU make to be able to execute the makefile. Once all the requirements are met, go ahead and run the command `make` in the root directory of the `iSpy` directory.
 ## Deploying
-Refer to **Usage** to figure out how to use it. More detailed documentation will appear here soon.
+Refer to **Usage** to figure out how to use it. More detailed documentation will appear here soon. We do NOT encourage you to use this tool illegally, and we are **NOT** responsible for what you do with it.
 ## Usage
 To get started, you can't just run `ispy` without any arguments. You must supply it with the IP address range using the parameters `-0` and `-1`. You must also provide the port that the scanner must scan for, using the `-p` parameter (set it to `80` or `8080` if you are looking for websites, or `25565` for Minecraft servers). You'll DEFINENTLY want to pass the `-t` parameter, since running iSpy with just one thread is extremely slow (the more threads, the faster and more IPv4 addresses will be scanned). You'll also want to set the `-T` parameter, which represents the timeout. We recommend setting it to around `1` or `2`, the more, the slower the scanning will be. An optional but recommended parameter to set is `-l`, which allows you to specify a file to where found hosts should be dumped into (if the file doesn't exist, it will be created). Here's a quick example scanning for "hidden" websites:
 ```sh
