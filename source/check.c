@@ -77,7 +77,7 @@ int check(char* ip_address, int port, int timeout_seconds)
     else
     {
         close(sockfd);
-        return 1;
+        return 0;
     }
 
     close(sockfd);

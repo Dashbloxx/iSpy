@@ -8,6 +8,7 @@
 
 #include "ipv4.h"
 #include "scanner.h"
+#include "address.h"
 
 int thread_count = 5;
 int timeout = 1;
@@ -71,5 +72,6 @@ usage_err:
     ip1 = string_to_ipv4(opt_ip1);
 
     scanner(ip0, ip1, timeout, thread_count, port);
+
     exit(EXIT_SUCCESS);
 }
