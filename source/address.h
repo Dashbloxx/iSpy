@@ -11,3 +11,4 @@ typedef struct
 } address_t;
 
 address_t * string_to_address(char * string);
+char * address_to_tring(address_t * address);

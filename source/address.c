@@ -16,3 +16,12 @@ address_t * string_to_address(char * string)
 	free(ipv4_string);
 	return address;
 }
+
+char * address_to_tring(address_t * address)
+{
+	char * string0 = malloc(sizeof(char) * 128);
+	char * string1 = ipv4_to_string(address->ipv4);
+	sprintf(string0, "%s:%d", string1, address->port);
+	free(string1);
+	return string0;
+}
