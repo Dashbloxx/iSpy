@@ -10,6 +10,9 @@
 
 extern char * log_filename;
 
+extern char * proxy_ip;
+extern int proxy_port;
+
 typedef struct
 {
     char *ip_address;
@@ -25,7 +28,14 @@ void *scanner_thread(void *arg)
     int port = args->port;
     int timeout = args->timeout;
 
-    switch(check(ip_address, port, timeout))
+    int proxy_or_not = 1;
+
+    if(proxy_ip == NULL && proxy_port == -1)
+    {
+        proxy_or_not = 0;
+    }
+
+    switch(check(ip_address, port, timeout, proxy_ip, proxy_port, proxy_or_not))
     {
     case 0:
         printf("%s:%d => \x1b[32;1monline\x1b[0m\n", ip_address, port);
