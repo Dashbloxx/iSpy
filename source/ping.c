@@ -1,13 +1,15 @@
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "ping.h"
 #include "ipv4.h"
 
-bool ping(ipv4_t ipv4)
+bool ping(char * ipv4)
 {
     char * command = malloc(sizeof(char) * 128);
-    sprintf(command, "ping -c 1 %s.%s.%s.%s", ipv4->a, ipv4->b, ipv4->c, ipv4->d);
+    sprintf(command, "ping -c 1 %s >/dev/null 2>&1", ipv4);
     if(system(command) == 0)
     {
         free(command);

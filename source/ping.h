@@ -1,3 +1,3 @@
 #pragma once
 
-bool ping(ipv4_t ipv4);
+bool ping(char * ipv4);

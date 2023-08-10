@@ -1,17 +1,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <pthread.h>
 
 #include "scanner.h"
 #include "ipv4.h"
 #include "check.h"
 #include "address.h"
+#include "ping.h"
 
 extern char * log_filename;
 
 extern char * proxy_ip;
 extern int proxy_port;
+extern int in_general;
 
 typedef struct
 {
@@ -35,45 +38,60 @@ void *scanner_thread(void *arg)
         proxy_or_not = 0;
     }
 
-    switch(check(ip_address, port, timeout, proxy_ip, proxy_port, proxy_or_not))
+    if(in_general == 0)
     {
-    case 0:
-        printf("%s:%d => \x1b[32;1monline\x1b[0m\n", ip_address, port);
-
-        if(log_filename != NULL)
+        switch(check(ip_address, port, timeout, proxy_ip, proxy_port, proxy_or_not))
         {
-            FILE * log_file = fopen(log_filename, "a");
-            if(log_file == NULL)
+        case 0:
+            printf("%s:%d => \x1b[32;1monline\x1b[0m\n", ip_address, port);
+
+            if(log_filename != NULL)
             {
-                fprintf(stderr, "\x1b[31;1mfatal error: error opening %s\x1b[0m\n", log_filename);
+                FILE * log_file = fopen(log_filename, "a");
+                if(log_file == NULL)
+                {
+                    fprintf(stderr, "\x1b[31;1mfatal error: error opening %s\x1b[0m\n", log_filename);
+                    fclose(log_file);
+                    exit(EXIT_FAILURE);
+                }
+                fprintf(log_file, "%s:%d\n", ip_address, port);
                 fclose(log_file);
-                exit(EXIT_FAILURE);
             }
-            fprintf(log_file, "%s:%d\n", ip_address, port);
-            fclose(log_file);
+            break;
+        case -1:
+            printf("%s:%d => \x1b[31;1mfailed to create socket\x1b[0m\n", ip_address, port);
+            break;
+        case -2:
+            printf("%s:%d => \x1b[31;1mfailed to parse IP address\x1b[0m\n", ip_address, port);
+            break;
+        case -3:
+           /*
+            *  Either timed out, since it was timed out, there's no way to know whether the address is
+            *  alive or not, unless if a larger timeout is set, although it is most likely that the address
+            *  is not alive or an available connection.
+            */
+            printf("%s:%d => \x1b[31;1munreachable\x1b[0m\n", ip_address, port);
+            break;
+        case -4:
+            printf("%s:%d => \x1b[31;1mfailed to check socket status\x1b[0m\n", ip_address, port);
+            break;
+        case -5:
+            /* Connection failed or was rejected. */
+            printf("%s:%d => \x1b[31;1mrejected\x1b[0m\n", ip_address, port);
+            break;
         }
-        break;
-    case -1:
-        printf("%s:%d => \x1b[31;1mfailed to create socket\x1b[0m\n", ip_address, port);
-        break;
-    case -2:
-        printf("%s:%d => \x1b[31;1mfailed to parse IP address\x1b[0m\n", ip_address, port);
-        break;
-    case -3:
-        /*
-        *  Either timed out, since it was timed out, there's no way to know whether the address is
-        *  alive or not, unless if a larger timeout is set, although it is most likely that the address
-        *  is not alive or an available connection.
-        */
-        printf("%s:%d => \x1b[31;1munreachable\x1b[0m\n", ip_address, port);
-        break;
-    case -4:
-        printf("%s:%d => \x1b[31;1mfailed to check socket status\x1b[0m\n", ip_address, port);
-        break;
-    case -5:
-        /* Connection failed or was rejected. */
-        printf("%s:%d => \x1b[31;1mrejected\x1b[0m\n", ip_address, port);
-        break;
+    }
+    else if(in_general == 1)
+    {
+        switch(ping(ip_address))
+        {
+        case true:
+            printf("%s => \x1b[32;1monline\x1b[0m\n", ip_address);
+            break;
+        case false:
+            printf("%s => \x1b[31;1moffline\x1b[0m\n", ip_address);
+            break;
+        }
     }
 
     free(ip_address);

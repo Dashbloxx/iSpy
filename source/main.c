@@ -16,6 +16,7 @@ char * opt_ip0 = NULL;
 char * opt_ip1 = NULL;
 char * log_filename = NULL;
 int port = 80;
+int in_general = 0;
 
 char * proxy_ip = NULL;
 int proxy_port = -1;
@@ -28,7 +29,7 @@ int main(int argc, char * argv[])
     }
 
     int opt;
-    while ((opt = getopt(argc, argv, "t:T:0:1:p:l:P:v:")) != -1) {
+    while ((opt = getopt(argc, argv, "t:T:0:1:p:l:P:v:g:")) != -1) {
         switch (opt) {
             case 't':
                 thread_count = atoi(optarg);
@@ -53,6 +54,9 @@ int main(int argc, char * argv[])
                 break;
             case 'v':
                 proxy_port = atoi(optarg);
+                break;
+            case 'g':
+                in_general = atoi(optarg);
                 break;
             case '?':
                 goto usage_err;
